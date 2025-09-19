@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Check for correct number of arguments
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 CONTACTNAME MESSAGE"
+    exit 1
+fi
+
+CONTACTNAME="$1"
+shift
+MESSAGE="$*"
+
+osascript <<END
+-- Pull phone number from Contacts
+tell application "Contacts"
+    set thePerson to first person whose name is "$CONTACTNAME"
+    set contactValue to value of first phone of thePerson
+end tell
+
+-- Send message via Messages
+tell application "Messages"
+    set targetService to 1st service whose service type = iMessage
+    set targetBuddy to buddy contactValue of targetService
+    send "$MESSAGE" to targetBuddy
+end tell
+END
