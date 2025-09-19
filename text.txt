@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Check for correct number of arguments
 if [ "$#" -lt 2 ]; then
     echo "Usage: $0 CONTACTNAME MESSAGE"
     exit 1
@@ -10,17 +9,71 @@ CONTACTNAME="$1"
 shift
 MESSAGE="$*"
 
-osascript <<END
--- Pull phone number from Contacts
+matches=$(osascript <<END
 tell application "Contacts"
-    set thePerson to first person whose name is "$CONTACTNAME"
-    set contactValue to value of first phone of thePerson
+    set searchResults to people whose name contains "$CONTACTNAME"
+    set matchList to {}
+    repeat with p in searchResults
+        set personName to name of p as string
+        set phoneValue to "No Phone"
+        if (phones of p) ≠ {} then
+            set phoneValue to value of first phone of p as string
+        end if
+        set end of matchList to personName & "|" & phoneValue
+    end repeat
+    set AppleScript's text item delimiters to ","
+    set resultString to matchList as string
+    set AppleScript's text item delimiters to ""
+    return resultString
 end tell
+END
+)
 
--- Send message via Messages
+matches_formatted=""
+if [ -n "$matches" ]; then
+    matches_formatted=$(echo "$matches" | tr ',' '\n' | sed 's/^[[:space:]]*//' | grep -v '^$')
+fi
+
+if [ -z "$matches_formatted" ]; then
+    echo "No contacts found matching '$CONTACTNAME'."
+    exit 1
+fi
+
+if [ $(echo "$matches_formatted" | wc -l | xargs) -eq 1 ]; then
+    chosen="$matches_formatted"
+else
+    if ! command -v fzf >/dev/null 2>&1; then
+        echo "Multiple matches found. Install fzf (brew install fzf) for interactive selection."
+        echo "Matches:"
+        echo "$matches_formatted"
+        exit 1
+    fi
+    echo "Multiple contacts found. Use ↑/↓ to navigate, Enter to select, or ESC to cancel."
+    chosen=$( (echo "Cancel" && echo "$matches_formatted") | \
+              fzf --prompt="Select contact: " --height=40% --exit-0 )
+fi
+
+if [ -z "$chosen" ] || [ "$chosen" = "Cancel" ]; then
+    echo "Message sending canceled."
+    exit 0
+fi
+
+phone=$(echo "$chosen" | cut -d'|' -f2)
+contact_name=$(echo "$chosen" | cut -d'|' -f1)
+
+if [ -z "$phone" ] || [ "$phone" = "No Phone" ]; then
+    echo "Selected contact '$contact_name' has no phone number."
+    exit 1
+fi
+
+echo "Sending iMessage to '$contact_name'…"
+
+osascript <<END
 tell application "Messages"
     set targetService to 1st service whose service type = iMessage
-    set targetBuddy to buddy contactValue of targetService
+    set targetBuddy to buddy "$phone" of targetService
     send "$MESSAGE" to targetBuddy
 end tell
 END
+
+echo "Message successfully sent to '$contact_name'."
