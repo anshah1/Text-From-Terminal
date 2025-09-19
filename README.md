@@ -36,11 +36,15 @@ Example:
 The script will send the message to the contact name provided. Make sure the contact exists in your iMessage contacts.
 
 ## Notes
-The CONTACT_NAME must match the name in your Messages app exactly.
-Quotes around the message are required if it contains spaces.
+- The CONTACT_NAME must match the name in your Messages app exactly.
+  
+- Quotes around the message are required if it contains spaces.
 
 ## Troubleshooting
-If the script doesn’t send messages, make sure Messages is running.
-Ensure macOS has granted Terminal permission to control Messages (check System Settings > Privacy & Security > Automation).
-Contact names must exactly match the iMessage contact, including capitalization.
-If you move the script to another directory, adjust the path accordingly when running it.
+- If the script doesn’t send messages, make sure Messages is running.
+  
+- Ensure macOS has granted Terminal permission to control Messages (check System Settings > Privacy & Security > Automation).
+  
+- Contact names must exactly match the iMessage contact, including capitalization.
+  
+- If you move the script to another directory, adjust the path accordingly when running it.
