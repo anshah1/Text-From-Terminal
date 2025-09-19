@@ -12,8 +12,8 @@ A simple script to send iMessages directly from your terminal.
 
 ## Installation
 
-1. Download the `text` script to your computer.  
-2. Move it to your home directory (or any directory you prefer). Example for moving to home directory:
+1. Download the `text.txt` script to your computer.  
+2. Move it to your home directory (or any directory you prefer). While doing so, get rid of the .txt extension. Example for moving to home directory:
 
 ```bash
 mv ~/Downloads/text ~/text
