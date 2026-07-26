@@ -9,71 +9,80 @@ CONTACTNAME="$1"
 shift
 MESSAGE="$*"
 
-matches=$(osascript <<END
-tell application "Contacts"
-    set searchResults to people whose name contains "$CONTACTNAME"
-    set matchList to {}
-    repeat with p in searchResults
-        set personName to name of p as string
-        set phoneValue to "No Phone"
-        if (phones of p) ≠ {} then
-            set phoneValue to value of first phone of p as string
-        end if
-        set end of matchList to personName & "|" & phoneValue
-    end repeat
-    set AppleScript's text item delimiters to ","
-    set resultString to matchList as string
-    set AppleScript's text item delimiters to ""
-    return resultString
-end tell
+matches=$(osascript - "$CONTACTNAME" <<'END'
+on run argv
+    set searchName to item 1 of argv
+    tell application "Con
+        set searchResults to people whose name contains searchName
+        set matchList to
+        repeat with p in searchResults
+            set personNam
+            set phoneValue to "No Phone"
+            if (phones of
+                set phoneValue to value of first phone of p as string
+            end if
+            set end of matchList to personName & "|" & phoneValue
+        end repeat
+        set AppleScript's text item delimiters to ","
+        set resultString
+        set AppleScript's text item delimiters to ""
+        return resultStri
+    end tell
+end run
 END
 )
 
 matches_formatted=""
 if [ -n "$matches" ]; then
-    matches_formatted=$(echo "$matches" | tr ',' '\n' | sed 's/^[[:space:]]*//' | grep -v '^$')
+    matches_formatted=$(en' | sed's/^[[:space:]]*//' | grep -v '^$')
 fi
 
-if [ -z "$matches_formatted" ]; then
+if [ -z "$matches_formatt
     echo "No contacts found matching '$CONTACTNAME'."
     exit 1
 fi
 
 if [ $(echo "$matches_formatted" | wc -l | xargs) -eq 1 ]; then
-    chosen="$matches_formatted"
+    chosen="$matches_form
 else
-    if ! command -v fzf >/dev/null 2>&1; then
-        echo "Multiple matches found. Install fzf (brew install fzf) for interactive selection."
+    if ! command -v fzf >
+        echo "Multiple matches found. Install fzf (brew install fzf) for
+interactive selection."
         echo "Matches:"
-        echo "$matches_formatted"
+        echo "$matches_fo
         exit 1
     fi
-    echo "Multiple contacts found. Use ↑/↓ to navigate, Enter to select, or ESC to cancel."
+    echo "Multiple contacts found. Use ↑/↓ to navigate, Enter to select, or
+ESC to cancel."
     chosen=$( (echo "Cancel" && echo "$matches_formatted") | \
-              fzf --prompt="Select contact: " --height=40% --exit-0 )
+              fzf --prompght=40% --exit-0 )
 fi
 
 if [ -z "$chosen" ] || [ "$chosen" = "Cancel" ]; then
-    echo "Message sending canceled."
+    echo "Message sending
     exit 0
 fi
 
-phone=$(echo "$chosen" | cut -d'|' -f2)
+phone=$(echo "$chosen" |
 contact_name=$(echo "$chosen" | cut -d'|' -f1)
 
 if [ -z "$phone" ] || [ "$phone" = "No Phone" ]; then
-    echo "Selected contact '$contact_name' has no phone number."
+    echo "Selected contachone number."
     exit 1
 fi
 
-echo "Sending iMessage to '$contact_name'…"
+echo "Sending iMessage to
 
-osascript <<END
-tell application "Messages"
-    set targetService to 1st service whose service type = iMessage
-    set targetBuddy to buddy "$phone" of targetService
-    send "$MESSAGE" to targetBuddy
-end tell
+osascript - "$phone" "$ME
+on run argv
+    set targetPhone to it
+    set messageText to item 2 of argv
+    tell application "Mes
+        set targetService to 1st service whose service type = iMessage
+        set targetBuddy tgetService
+        send messageText to targetBuddy
+    end tell
+end run
 END
 
-echo "Message successfully sent to '$contact_name'."
+echo "Message successfull"
