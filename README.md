@@ -1,4 +1,36 @@
-Then run:
+# Terminal iMessage Sender
+
+A simple script to send iMessages directly from your terminal.
+
+## Requirements
+
+- macOS
+- Messages (iMessage) set up and signed in on your Mac
+- Terminal access
+
+> `fzf` is optional and only used for interactive contact selection.
+
+## Installation
+
+1. Download the `text.txt` script to your computer.
+2. Move it to your home directory (or any directory you prefer). While doing so, get rid of the .txt extension. Example for moving to home directory:
+
+```bash
+mv ~/Downloads/text.txt ~/text
+```
+
+3.    Make the script executable:
+```bash
+chmod +x ~/text
+```
+
+4. (Optional) Install fzf for interactive selection when multiple contacts match:
+```bash
+brew install fzf
+```
+## Usage
+
+Navigate to the directory containing the script (if in home directory, cd ~). Then run:
 ```bash
 ./text CONTACT_NAME Your message here
 ```
